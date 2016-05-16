@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     const auto width = 800;
     const auto height = 600;
 
-    auto fractal = Fractal::Fractal<width, height>();
+    auto fractal = Fractal<width, height>();
 
     fractal.computeFractal();
 
