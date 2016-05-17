@@ -6,22 +6,40 @@
 #define FRACTALRENDERER_BIDIMENSIONNALARRAY_H
 
 
+#include <assert.h>
+
 template <class T, int sizeX, int sizeY> class BiDimensionnalArray {
 public:
-    BiDimensionnalArray();
-    ~BiDimensionnalArray();
 
-    void setData(int X, int Y, T& value);
 
-    T& getData(int X, int Y);
+    BiDimensionnalArray() {}
 
-    int getSize(int dimension);
+    ~BiDimensionnalArray() {
+        delete[] _array;
+    }
+
+    void setData(int X, int Y, T& value) {
+        _array[X][Y] = value;
+    }
+
+    T& getData(int X, int Y) {
+        return _array[X][Y];
+    }
+
+    int getSize(int dimension) {
+
+        assert(dimension == 0 || dimension == 1);
+
+        if (dimension==0)
+            return sizeX;
+        else if(dimension == 1)
+            return  sizeY;
+            else return 0;
+    }
 
 private:
 
     T _array[sizeX][sizeY];
-    int _sizeX;
-    int _sizeY;
 
 };
 
