@@ -8,4 +8,4 @@
 #include "Complex.h"
 #include "BiDimensionnalArray.h"
 
-#endif //FRACTALRENDERER_MATHHEADER_H
+#endif // FRACTALRENDERER_MATHHEADER_H

@@ -9,20 +9,14 @@
 
 class Window {
 public:
+  Window(int width, int height);
 
-    Window(int width, int height);
-
-    sf::RenderWindow& getWindow() {
-        return _window;
-    }
-
+  sf::RenderWindow &getWindow() { return _window; }
 
 private:
-    int _width;
-    int _height;
-    sf::RenderWindow _window;
-
+  int _width;
+  int _height;
+  sf::RenderWindow _window;
 };
 
-
-#endif //FRACTALRENDERER_WINDO_H
+#endif // FRACTALRENDERER_WINDO_H

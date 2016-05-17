@@ -4,6 +4,6 @@
 
 #include "Window.h"
 
-Window::Window(int width, int height): _width(width),
-_height(height),
-_window(sf::VideoMode(width, height), "Fractal Renderer") { }
+Window::Window(int width, int height)
+    : _width(width), _height(height),
+      _window(sf::VideoMode(width, height), "Fractal Renderer") {}
