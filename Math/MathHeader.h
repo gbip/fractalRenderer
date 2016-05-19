@@ -5,7 +5,7 @@
 #ifndef FRACTALRENDERER_MATHHEADER_H
 #define FRACTALRENDERER_MATHHEADER_H
 
-#include "Complex.h"
 #include "BiDimensionnalArray.h"
+#include "Complex.h"
 
 #endif // FRACTALRENDERER_MATHHEADER_H

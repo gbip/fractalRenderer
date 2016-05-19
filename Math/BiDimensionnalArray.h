@@ -6,36 +6,59 @@
 #define FRACTALRENDERER_BIDIMENSIONNALARRAY_H
 
 #include <assert.h>
+#include <memory>
+#include <vector>
+#include <iostream>
 
 // A template classe representing a bidimensionnal array
-template <class T, int sizeX, int sizeY> class BiDimensionnalArray {
+template <typename T, const int sizeX, const int sizeY>
+class BiDimensionnalArray {
 public:
-  BiDimensionnalArray() {}
 
-  // Delete the array
-  ~BiDimensionnalArray() {}
+	BiDimensionnalArray() : _sizeX(sizeX), _sizeY(sizeY), _array{}{
+		std::cout << "111" << std::endl;
+		for(size_t i = 0; i < sizeX; ++i) {
+			std::cout << "222" << i << std::endl;
+			_array[i] = {};
+			for(size_t j = 0; j < sizeY; ++j) {
+				std::cout << "333" << j << std::endl;
+				_array[i][j] = {0,0};
+			}
+		}
 
-  // Set the value at the slot (X,Y)
-  void setData(const int &X, const int &Y, T &value) { _array[X][Y] = value; }
+	};
 
-  // Return the value at the slot (X,Y)
-  T &getData(const int &X, const int &Y) { return _array[X][Y]; }
+	// Delete the array
+	~BiDimensionnalArray() {}
 
-  // Return the size of the dimension
-  int getSize(const int &dimension) {
+	// Set the value at the slot (X,Y)
+	void setData(const int& X, const int& Y, T& value) {
+		_array[X][Y] = value;
+	}
 
-    assert(dimension == 0 || dimension == 1);
+	// Return the value at the slot (X,Y)
+	T& getData(const int& X, const int& Y) {
+		return _array.at(X).at(Y);
+	}
 
-    if (dimension == 0)
-      return sizeX;
-    else if (dimension == 1)
-      return sizeY;
-    else
-      return 0;
-  }
+	// Return the size of the dimension
+	int getSize(const int& dimension) {
+
+		assert(dimension == 0 || dimension == 1);
+
+		if(dimension == 0)
+			return _sizeX;
+		else if(dimension == 1)
+			return _sizeY;
+		else
+			return 0;
+	}
 
 private:
-  T _array[sizeX][sizeY];
+
+	int _sizeX;
+	int _sizeY;
+	std::array<std::array<T,sizeY>,sizeX> _array;
 };
 
 #endif // FRACTALRENDERER_BIDIMENSIONNALARRAY_H

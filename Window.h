@@ -6,17 +6,28 @@
 #define FRACTALRENDERER_WINDO_H
 
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <memory>
+
 
 class Window {
 public:
-  Window(int width, int height);
+	Window(int width, int height);
 
-  sf::RenderWindow &getWindow() { return _window; }
+	sf::RenderWindow& getWindow() {
+		return _window;
+	}
+
+	//A function that will map all the input data to a color
+	sf::Color gradientFunction(const double &data) {
+		return sf::Color::Red;
+	}
+	const int getWidth() { return _width;};
+	const int getHeight() { return _height;};
 
 private:
-  int _width;
-  int _height;
-  sf::RenderWindow _window;
+	int _width;
+	int _height;
+	sf::RenderWindow _window;
 };
 
 #endif // FRACTALRENDERER_WINDO_H

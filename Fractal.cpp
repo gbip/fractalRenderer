@@ -3,3 +3,8 @@
 //
 
 #include "Fractal.h"
+/*
+void Fractal::drawFractal(sf::RenderWindow &window) {
+
+}
+ */
