@@ -10,19 +10,26 @@ void draw(GtkWidget* widget, cairo_t* cr, gpointer data) {
 };
 
 int main(int argc, char**argv) {
-	std::cout << "111" << std::endl;
 	const int width = 800;
 	const int height = 600;
-return 0;
-	auto fractal = Fractal<800,600>(50);
 
-	std::cout << "OK" << std::endl;
+
 
 	Window window(width, height);
+	window.getWindow().clear(sf::Color::Green);
+	window.getWindow().display();
 
-	//fractal.drawFractal(window);
+	Fractal<width,height> fractal(500);
 
 
+	fractal.rescale({-10,10}, {10,-10});
+	sf::Sprite renderSprite;
+	sf::Texture tex = fractal.drawFractal();
+	renderSprite.setTexture(tex, true);
+	window.getWindow().draw(renderSprite);
+	window.getWindow().display();
+
+/*
 	while(window.getWindow().isOpen()) {
 		sf::Event event;
 		while(window.getWindow().pollEvent(event)) {
@@ -30,8 +37,14 @@ return 0;
 				window.getWindow().close();
 			}
 		}
-
-		window.getWindow().clear(sf::Color::Black);
+		sleep(1);
+		//fractal.drawFractal(window);
+		window.getWindow().draw(test);
 		window.getWindow().display();
 	}
+*/
+	while(true) {
+		sleep(1);
+	}
+
 }

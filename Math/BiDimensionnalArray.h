@@ -16,13 +16,10 @@ class BiDimensionnalArray {
 public:
 
 	BiDimensionnalArray() : _sizeX(sizeX), _sizeY(sizeY), _array{}{
-		std::cout << "111" << std::endl;
 		for(size_t i = 0; i < sizeX; ++i) {
-			std::cout << "222" << i << std::endl;
 			_array[i] = {};
 			for(size_t j = 0; j < sizeY; ++j) {
-				std::cout << "333" << j << std::endl;
-				_array[i][j] = {0,0};
+				_array[i][j] = {{0},{0}};
 			}
 		}
 
@@ -32,12 +29,12 @@ public:
 	~BiDimensionnalArray() {}
 
 	// Set the value at the slot (X,Y)
-	void setData(const int& X, const int& Y, T& value) {
+	void setData(const int& X, const int& Y, T value) {
 		_array[X][Y] = value;
 	}
 
 	// Return the value at the slot (X,Y)
-	T& getData(const int& X, const int& Y) {
+	T getData(const int& X, const int& Y) {
 		return _array.at(X).at(Y);
 	}
 

@@ -13,65 +13,114 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <iostream>
+#include <cmath>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 template<int sizeX, int sizeY>
 class Fractal {
 
 public:
-	Fractal(const int step) : _step(step) {}
+	Fractal(const int step) : _step(step) {
 
+		_complexArray = std::make_unique<BiDimensionnalArray<Math::Complex, sizeX, sizeY>>();
+		_fractalArray = std::make_unique<BiDimensionnalArray<stepAndFinalValue, sizeX, sizeY>>();
+	}
+
+	~Fractal() {
+	}
 	//Will draw the fractal on the window
 	//template<int sizeX, int sizeY>
-	void drawFractal(Window &window) {
+	sf::Texture drawFractal() {
+
 		//Call computeFractal() to update the data
+
 		computeFractal();
 
-		sf::VertexArray drawnData(sf::Points , sizeX*sizeY);
+		sf::Image renderImage;
+		sf::Texture texture;
 
-		double test;
+		renderImage.create(sizeX, sizeY);
 
 
-		for(int i = 0; i < _fractalArray.getSize(0); i++) {
-			for(int j = 0; j < _fractalArray.getSize(1); j++) {
+		for(int i = 0; i < _fractalArray->getSize(0); ++i) {
+			for(int j = 0; j < _fractalArray->getSize(1); ++j) {
 				//Represent the actual complex value of the point we are currently looking at after applying step times
 				//the fractalFormula on it's original coordinates
-				auto workingComplex = _fractalArray.getData(i,j);
-				test = interpretResult(workingComplex);
-				auto graphicData = window.gradientFunction(45.0);
+				auto workingComplex = _fractalArray->getData(i,j);
+				sf::Color pixelColor = interpretResult(workingComplex);
+				renderImage.setPixel(i,j, pixelColor);
+			}
+		}
+
+		if (texture.loadFromImage(renderImage, sf::Rect<int>(0,0,sizeX,sizeY)))
+			std::cout << "Texture : OK" << std::endl;
+		texture.update(renderImage);
+		std::cout << "Done \n" ;
+		return texture;
+	}
+
+
+	//Will interpolate all the points in the complex plan being given the 2 extremum of the window
+	void rescale(const Math::Complex& origin, const Math::Complex& maximum) {
+
+		for(int i = 0; i < _complexArray->getSize(0); ++i) {
+
+			for(int j = 0; j < _complexArray->getSize(1); ++j) {
+
+				//Interpolating all the points
+				double realPart = double(i)/(sizeX-1) * maximum.Real + origin.Real * double(sizeX-1 - i)/sizeX;
+				double imaginaryPart = double(j)/(sizeY-1) * maximum.Imaginary + origin.Imaginary * double(sizeY-1 -j)/sizeY;
+
+				Math::Complex result = {realPart, imaginaryPart};
+
+				_complexArray->setData(i, j, result);
 
 			}
 		}
-		test = test/(_fractalArray.getSize(0)*_fractalArray.getSize(1));
-		std::cout << "Result :" << test << std::endl;
 	}
 
 
 private:
 
+	struct stepAndFinalValue {
+		Math::Complex complex;
+		int  step;
+	};
+
+
 	//will compute, for each element in the array, it's result through the recurrent suite defined in the function fractalFormula
 	void computeFractal() {
 
-		for(int i = 0; i < _complexArray.getSize(0); i++) {
-			for(int j = 0; j < _complexArray.getSize(1); j++) {
+		for(int i = 0; i < _complexArray->getSize(0); i++) {
+			for(int j = 0; j < _complexArray->getSize(1); j++) {
 
-				auto pointCoordInComplexSpace = (_complexArray.getData(i, j));
+				auto pointCoordInComplexSpace = (_complexArray->getData(i, j));
 
 				auto zn = fractalFormula( Math::Complex{0,0}, pointCoordInComplexSpace);
-
-                for (int k = 0; k < _step; k++) {
+				int iterator = 0;
+                while(iterator < _step) {
 					zn = fractalFormula(zn, pointCoordInComplexSpace);
+					if (Math::module(zn)> 2.00) {
+						break;
+					}
+					++iterator;
                 }
-				_fractalArray.setData(i, j, zn);
+				_fractalArray->setData(i, j, {zn, iterator});
 			}
 		}
 	};
 
 
+
 	const int _step;
 
-	// A bidimensionnal array with 1 slot for each pixel
-	BiDimensionnalArray<Math::Complex, sizeX, sizeY> _complexArray;
-	BiDimensionnalArray<Math::Complex, sizeX, sizeY> _fractalArray;
+	// A bidimensionnal array with 1 complex number slot for each pixel containing the point coordinate
+	std::unique_ptr<BiDimensionnalArray<Math::Complex, sizeX, sizeY>> _complexArray;
+
+
+	std::unique_ptr<BiDimensionnalArray<stepAndFinalValue, sizeX, sizeY>> _fractalArray;
+
 
 	// The formula used to compute the fractal
 	Math::Complex fractalFormula(const Math::Complex& zn, const Math::Complex& c) {
@@ -79,15 +128,16 @@ private:
 		return result;
 	}
 
-	double interpretResult(const Math::Complex& data) {
-		auto dataModule = Math::module(data);
+	sf::Color interpretResult(const stepAndFinalValue& data) {
+		auto dataModule = Math::module(data.complex);
 		if (dataModule<2) {
-			return dataModule/_step;
+			return sf::Color::Black;
 		}
 		else {
-			return 45;
+			return sf::Color::White;
 		}
 	};
+
 };
 
 #endif // FRACTALRENDERER_FRACTAL_H

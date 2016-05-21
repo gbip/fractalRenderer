@@ -23,6 +23,10 @@ namespace Math {
 
 	// Return the module of a complex number
 	const inline double module(const Complex& a) {
-		return sqrt((a.Real, 2) + pow(a.Imaginary, 2));
+		return sqrt(pow(a.Real, 2) + pow(a.Imaginary, 2));
 	};
+
+	const inline std::string toString(const Complex& a) {
+		return (std::to_string(a.Real) + " + " + std::to_string(a.Imaginary) + "i");
+	}
 }
