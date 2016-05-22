@@ -18,7 +18,7 @@ namespace Math {
 		return {a.Real + b.Real, a.Imaginary + b.Imaginary};
 	}
 	inline Complex operator*(const Complex& a, const Complex& b) {
-		return {a.Real * b.Real - a.Imaginary * b.Imaginary, a.Real * b.Real + a.Imaginary * b.Imaginary};
+		return {a.Real * b.Real - a.Imaginary * b.Imaginary, a.Real * b.Imaginary + a.Imaginary * b.Real};
 	}
 
 	// Return the module of a complex number

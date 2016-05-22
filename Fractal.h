@@ -34,7 +34,6 @@ public:
 	sf::Texture drawFractal() {
 
 		//Call computeFractal() to update the data
-
 		computeFractal();
 
 		sf::Image renderImage;
@@ -60,6 +59,34 @@ public:
 		return texture;
 	}
 
+	sf::Texture test_rescale(){
+		sf::Image renderImage;
+		sf::Texture texture;
+
+		renderImage.create(sizeX, sizeY);
+
+
+		for(int i = 0; i < _fractalArray->getSize(0); ++i) {
+			for(int j = 0; j < _fractalArray->getSize(1); ++j) {
+				//Represent the actual complex value of the point we are currently looking at after applying step times
+				//the fractalFormula on it's original coordinates
+				auto workingComplex = _complexArray->getData(i,j);
+				//sf::Color pixelColor = interpretResult(workingComplex);
+				unsigned char red = static_cast<unsigned char>(fabs(workingComplex.Real) * 100);
+				unsigned char green = static_cast<unsigned char>(fabs(workingComplex.Imaginary) * 100);
+				unsigned char blue = 0;
+				sf::Color pixelColor = {red, green,blue};
+				renderImage.setPixel(i,j, pixelColor);
+			}
+		}
+
+		if (texture.loadFromImage(renderImage, sf::Rect<int>(0,0,sizeX,sizeY)))
+			std::cout << "Texture : OK" << std::endl;
+		texture.update(renderImage);
+		std::cout << "Done \n" ;
+		return texture;
+	};
+
 
 	//Will interpolate all the points in the complex plan being given the 2 extremum of the window
 	void rescale(const Math::Complex& origin, const Math::Complex& maximum) {
@@ -82,7 +109,7 @@ public:
 
 
 private:
-
+	//A simple struct
 	struct stepAndFinalValue {
 		Math::Complex complex;
 		int  step;
@@ -95,16 +122,13 @@ private:
 		for(int i = 0; i < _complexArray->getSize(0); i++) {
 			for(int j = 0; j < _complexArray->getSize(1); j++) {
 
-				auto pointCoordInComplexSpace = (_complexArray->getData(i, j));
+				Math::Complex pointCoordInComplexSpace = _complexArray->getData(i, j);
 
 				auto zn = fractalFormula( Math::Complex{0,0}, pointCoordInComplexSpace);
 				int iterator = 0;
                 while(iterator < _step) {
-					zn = fractalFormula(zn, pointCoordInComplexSpace);
-					if (Math::module(zn)> 2.00) {
-						break;
-					}
 					++iterator;
+					zn = fractalFormula(zn, pointCoordInComplexSpace);
                 }
 				_fractalArray->setData(i, j, {zn, iterator});
 			}
@@ -124,7 +148,7 @@ private:
 
 	// The formula used to compute the fractal
 	Math::Complex fractalFormula(const Math::Complex& zn, const Math::Complex& c) {
-		auto result = (zn * zn) + c;
+		Math::Complex result = (zn * zn) + c;
 		return result;
 	}
 
@@ -132,6 +156,7 @@ private:
 		auto dataModule = Math::module(data.complex);
 		if (dataModule<2) {
 			return sf::Color::Black;
+			//return sf::Color(dataModule/data.step * 100, data.step/dataModule, 45);
 		}
 		else {
 			return sf::Color::White;

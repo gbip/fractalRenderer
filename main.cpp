@@ -11,7 +11,7 @@ void draw(GtkWidget* widget, cairo_t* cr, gpointer data) {
 
 int main(int argc, char**argv) {
 	const int width = 800;
-	const int height = 600;
+	const int height = 800;
 
 
 
@@ -19,10 +19,10 @@ int main(int argc, char**argv) {
 	window.getWindow().clear(sf::Color::Green);
 	window.getWindow().display();
 
-	Fractal<width,height> fractal(500);
+	Fractal<width,height> fractal(60);
 
 
-	fractal.rescale({-10,10}, {10,-10});
+	fractal.rescale({-2,2}, {2,-2});
 	sf::Sprite renderSprite;
 	sf::Texture tex = fractal.drawFractal();
 	renderSprite.setTexture(tex, true);
