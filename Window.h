@@ -17,7 +17,7 @@ public:
 		return _window;
 	}
 
-	//A function that will map all the input data to a color
+	//A function that will map all the normalized input data (between 0 and 1) to a gradient
 	sf::Color gradientFunction(const double &data) {
 		return sf::Color::Red;
 	}

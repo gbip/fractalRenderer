@@ -21,7 +21,7 @@ template<int sizeX, int sizeY>
 class Fractal {
 
 public:
-	Fractal(const int step) : _step(step) {
+	Fractal()  {
 
 		_complexArray = std::make_unique<BiDimensionnalArray<Math::Complex, sizeX, sizeY>>();
 		_fractalArray = std::make_unique<BiDimensionnalArray<stepAndFinalValue, sizeX, sizeY>>();
@@ -31,10 +31,10 @@ public:
 	}
 	//Will draw the fractal on the window
 	//template<int sizeX, int sizeY>
-	sf::Texture drawFractal() {
+	sf::Texture drawFractal(int step) {
 
 		//Call computeFractal() to update the data
-		computeFractal();
+		computeFractal(step);
 
 		sf::Image renderImage;
 		sf::Texture texture;
@@ -53,9 +53,7 @@ public:
 		}
 
 		if (texture.loadFromImage(renderImage, sf::Rect<int>(0,0,sizeX,sizeY)))
-			std::cout << "Texture : OK" << std::endl;
-		texture.update(renderImage);
-		std::cout << "Done \n" ;
+			texture.update(renderImage);
 		return texture;
 	}
 
@@ -89,35 +87,91 @@ public:
 
 
 	//Will interpolate all the points in the complex plan being given the 2 extremum of the window
-	void rescale(const Math::Complex& origin, const Math::Complex& maximum) {
+	//void rescale(const Math::Complex& origin, const Math::Complex& maximum) {
 
+	void setNewRenderArea(int posX, int posY, float zoomFactor) {
+		double half_width = sizeX / zoomFactor;
+		double half_height = sizeY / zoomFactor;
+
+		auto topLeftCorner = sf::Vector2<double>{posX - half_height, posY - half_width};
+		auto bottomRightCorner = sf::Vector2<double>{posX + half_height, posY + half_width};
+
+		Math::Complex newOrigin = {topLeftCorner.x/sizeX * fabs(_origin.Real-_maximum.Real), topLeftCorner.y/sizeY * fabs(_origin.Imaginary - _maximum.Imaginary)};
+
+		/*
+		Math::Complex newOrigin = {
+				topLeftCorner.x / (sizeX - 1) * _maximum.Real + _origin.Real * topLeftCorner.x - 1 - posX / sizeX,
+				topLeftCorner.y / (sizeY - 1) * _maximum.Imaginary + _origin.Imaginary * topLeftCorner.y - 1 -
+				posY / sizeY};
+				*/
+		std::cout << "New Origin " << Math::toString(newOrigin) << std::endl;
+
+
+		Math::Complex newMaximum = {bottomRightCorner.x/sizeX * fabs(_origin.Real-_maximum.Real), bottomRightCorner.y/sizeY * fabs(_origin.Imaginary - _maximum.Imaginary)};
+
+		/*Math::Complex newMaximum = {
+				bottomRightCorner.x / (sizeX - 1) * _maximum.Real + _origin.Real * bottomRightCorner.x - 1 -
+				posX / sizeX,
+				bottomRightCorner.y / (sizeY - 1) * _maximum.Imaginary + _origin.Imaginary * bottomRightCorner.y - 1 -
+				posY / sizeY};
+				*/
+
+		std::cout << "New Origin " << Math::toString(newMaximum) << std::endl;
+
+		mapWindowTo(newOrigin, newMaximum);
+	}
+
+	//Will interpolate all the points in the complex plan being given the 2 extremum of the window
+	void interpolatePoints() {
 		for(int i = 0; i < _complexArray->getSize(0); ++i) {
 
 			for(int j = 0; j < _complexArray->getSize(1); ++j) {
 
 				//Interpolating all the points
-				double realPart = double(i)/(sizeX-1) * maximum.Real + origin.Real * double(sizeX-1 - i)/sizeX;
-				double imaginaryPart = double(j)/(sizeY-1) * maximum.Imaginary + origin.Imaginary * double(sizeY-1 -j)/sizeY;
-
+				double realPart = double(i)/(sizeX-1) * _maximum.Real + _origin.Real * double(sizeX-1 - i)/sizeX;
+				double imaginaryPart = double(j)/(sizeY-1) * _maximum.Imaginary + _origin.Imaginary * double(sizeY-1 -j)/sizeY;
 				Math::Complex result = {realPart, imaginaryPart};
-
 				_complexArray->setData(i, j, result);
 
 			}
 		}
 	}
 
+	Math::Complex getOrigin() {
+		return _origin;
+	}
+	Math::Complex getMaximum() {
+		return  _maximum;
+	}
+
+	void mapWindowTo(Math::Complex origin, Math::Complex maximum) {
+		_origin = origin;
+		_maximum = maximum;
+	}
+
 
 private:
+
 	//A simple struct
 	struct stepAndFinalValue {
 		Math::Complex complex;
 		int  step;
 	};
 
+	// A bidimensionnal array with 1 complex number slot for each pixel containing the point coordinate
+	std::unique_ptr<BiDimensionnalArray<Math::Complex, sizeX, sizeY>> _complexArray;
+
+	// A bidimensionnal array wich contain all the term of the recurrent suite defined in fractal formula
+	std::unique_ptr<BiDimensionnalArray<stepAndFinalValue, sizeX, sizeY>> _fractalArray;
+
+	//A pair of point representing, respectively the top left corner and the bottom right corner of the complex plane
+	Math::Complex _origin;
+	Math::Complex _maximum;
+
+
 
 	//will compute, for each element in the array, it's result through the recurrent suite defined in the function fractalFormula
-	void computeFractal() {
+	void computeFractal(int step) {
 
 		for(int i = 0; i < _complexArray->getSize(0); i++) {
 			for(int j = 0; j < _complexArray->getSize(1); j++) {
@@ -126,7 +180,7 @@ private:
 
 				auto zn = fractalFormula( Math::Complex{0,0}, pointCoordInComplexSpace);
 				int iterator = 0;
-                while(iterator < _step) {
+                while(iterator < step) {
 					++iterator;
 					zn = fractalFormula(zn, pointCoordInComplexSpace);
                 }
@@ -134,16 +188,6 @@ private:
 			}
 		}
 	};
-
-
-
-	const int _step;
-
-	// A bidimensionnal array with 1 complex number slot for each pixel containing the point coordinate
-	std::unique_ptr<BiDimensionnalArray<Math::Complex, sizeX, sizeY>> _complexArray;
-
-
-	std::unique_ptr<BiDimensionnalArray<stepAndFinalValue, sizeX, sizeY>> _fractalArray;
 
 
 	// The formula used to compute the fractal
