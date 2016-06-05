@@ -89,14 +89,36 @@ public:
 	//Will interpolate all the points in the complex plan being given the 2 extremum of the window
 	//void rescale(const Math::Complex& origin, const Math::Complex& maximum) {
 
-	void setNewRenderArea(int posX, int posY, float zoomFactor) {
-		double half_width = sizeX / zoomFactor;
-		double half_height = sizeY / zoomFactor;
+	void setNewRenderArea(int posX, int posY, bool isAZoom) {
+		int half_width,  half_height;
+		if (isAZoom) {
+			half_width = sizeX/2;
+			half_height = sizeY/2;
+		}
+		else {
+			half_width = sizeX*2;
+			half_height = sizeY*2;
+		}
+		//Math::Complex clickpos = _complexArray.get()->getData(posX, posY);
+		//std::cout << "clikcpos = " << Math::toString(clickpos);
 
-		auto topLeftCorner = sf::Vector2<double>{posX - half_height, posY - half_width};
-		auto bottomRightCorner = sf::Vector2<double>{posX + half_height, posY + half_width};
+		auto topLeftCorner = sf::Vector2<int>{posX - half_height, posY - half_width};
+		auto bottomRightCorner = sf::Vector2<int>{posX + half_height, posY + half_width};
 
-		Math::Complex newOrigin = {topLeftCorner.x/sizeX * fabs(_origin.Real-_maximum.Real), topLeftCorner.y/sizeY * fabs(_origin.Imaginary - _maximum.Imaginary)};
+		if (topLeftCorner.x < 0)
+			topLeftCorner.x = 0;
+		if (topLeftCorner.y < 0)
+			topLeftCorner.y = 0;
+		if (bottomRightCorner.x>799)
+			bottomRightCorner.x = 799;
+		if (bottomRightCorner.y>799)
+			bottomRightCorner.y = 799;
+
+
+		Math::Complex newOrigin = _complexArray.get()->getData(topLeftCorner.x, topLeftCorner.y);
+		Math::Complex newMaximum = _complexArray.get()->getData(bottomRightCorner.x, bottomRightCorner.y);
+
+		//Math::Complex newOrigin = {topLeftCorner.x/sizeX * fabs(_origin.Real-_maximum.Real), topLeftCorner.y/sizeY * fabs(_origin.Imaginary - _maximum.Imaginary)};
 
 		/*
 		Math::Complex newOrigin = {
@@ -104,10 +126,10 @@ public:
 				topLeftCorner.y / (sizeY - 1) * _maximum.Imaginary + _origin.Imaginary * topLeftCorner.y - 1 -
 				posY / sizeY};
 				*/
-		std::cout << "New Origin " << Math::toString(newOrigin) << std::endl;
+		//std::cout << "New Origin " << Math::toString(newOrigin) << std::endl;
 
 
-		Math::Complex newMaximum = {bottomRightCorner.x/sizeX * fabs(_origin.Real-_maximum.Real), bottomRightCorner.y/sizeY * fabs(_origin.Imaginary - _maximum.Imaginary)};
+		//Math::Complex newMaximum = {bottomRightCorner.x/sizeX * fabs(_origin.Real-_maximum.Real), bottomRightCorner.y/sizeY * fabs(_origin.Imaginary - _maximum.Imaginary)};
 
 		/*Math::Complex newMaximum = {
 				bottomRightCorner.x / (sizeX - 1) * _maximum.Real + _origin.Real * bottomRightCorner.x - 1 -
@@ -116,9 +138,10 @@ public:
 				posY / sizeY};
 				*/
 
-		std::cout << "New Origin " << Math::toString(newMaximum) << std::endl;
+		//std::cout << "New Origin " << Math::toString(newMaximum) << std::endl;
 
 		mapWindowTo(newOrigin, newMaximum);
+
 	}
 
 	//Will interpolate all the points in the complex plan being given the 2 extremum of the window

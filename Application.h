@@ -15,7 +15,7 @@ class Application {
 
 public:
 
-    Application(): _window(sizeX, sizeY), _fractal() {
+    Application(): _window(sizeX, sizeY), _fractal(), _redraw(true) {
         _fractal.mapWindowTo({-2,2}, {2,-2});
         _fractal.interpolatePoints();
     };
@@ -37,32 +37,43 @@ public:
                 }
                 if (event.type == sf::Event::MouseWheelScrolled) {
                     std::cout << "Mouse zoomed" << event.mouseWheelScroll.delta << std::endl;
-                    incrementZoomFactor(event.mouseWheelScroll.delta > 0);
                     std::cout << "Zoom : " << _zoomFactor << std::endl;
                     auto mousePosition = sf::Mouse::getPosition(_window.getWindow());
-                    _fractal.setNewRenderArea(mousePosition.x, mousePosition.y, _zoomFactor);
+
+                    _fractal.setNewRenderArea(mousePosition.x, mousePosition.y, event.mouseWheel.delta>0);
                     _fractal.interpolatePoints();
+                    _redraw = true;
+                }
+                if (event.type == sf::Event::MouseButtonPressed) {
+                    auto mousePosition = sf::Mouse::getPosition(_window.getWindow());
+                    std::cout << "Zoom : " << _zoomFactor << std::endl;
+                    _fractal.setNewRenderArea(mousePosition.x, mousePosition.y, true);
+                    _fractal.interpolatePoints();
+                    _redraw = true;
                 }
             }
-            draw(100);
+            if (_redraw) {
+                draw(100);
+                _redraw = false;
+            }
         }
     }
 
 private:
 
-    void incrementZoomFactor(bool isAZoom) {
+    int getZoomFactor(bool isAZoom) {
         if(isAZoom) {
-            _zoomFactor = _zoomFactor + 1;
+            return 2;
         }
         else {
-            _zoomFactor = _zoomFactor - 1;
+            return 0.5;
         }
     }
 
     Window _window;
     Fractal<sizeX, sizeY> _fractal;
-    int _zoomFactor = 1;
-
+    int _zoomFactor = 0;
+    bool _redraw;
 };
 
 
